@@ -1,4 +1,5 @@
 
+using AuthenticationService.Middleware;
 using AuthenticationService.Repository;
 using AuthenticationService.Repository.IRepository;
 using AutoMapper;
@@ -54,6 +55,7 @@ namespace AuthenticationService
 
             app.UseAuthorization();
 
+            app.UseLogMiddleware();
 
             app.MapControllers();
 

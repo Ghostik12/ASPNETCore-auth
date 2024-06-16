@@ -4,29 +4,31 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Diagnostics;
 using System.Security.Authentication;
 using System.Security.Claims;
+using AuthenticationService.Repository.IRepository;
 
 namespace AuthenticationService.Controllers
 {
+    [ExceptionHandler]
     [ApiController]
     [Route("[controller]")]
     public class UserController : ControllerBase
     {
         private ILogger _logger;
         private IMapper _mapper;
-        private UserRepository _userRepository;
-        public UserController( ILogger logger, IMapper mapper) 
+        private IUserRepository _userRepository;
+        public UserController( ILogger logger, IMapper mapper, IUserRepository userRepository) 
         {
             _logger = logger;
             _mapper = mapper;
+            _userRepository = userRepository;
 
             logger.WriteEvent("f");
             logger.WriteError("e");
         }
 
-        [Authorize]
+        [Authorize(Roles = "Администратор")]
         [HttpGet]
         [Route("viewmodel")]
         public UserViewModel GetUserViewModel(int id)
@@ -64,7 +66,8 @@ namespace AuthenticationService.Controllers
 
             var claims = new List<Claim>
             {
-                new Claim(ClaimsIdentity.DefaultNameClaimType, user.Login)
+                new Claim(ClaimsIdentity.DefaultNameClaimType, user.Login),
+                new Claim(ClaimsIdentity.DefaultRoleClaimType, user.Role.Name)
             };
 
             ClaimsIdentity claimsIdentity = new ClaimsIdentity(claims, "AppCookie", ClaimsIdentity.DefaultNameClaimType, ClaimsIdentity.DefaultRoleClaimType);
